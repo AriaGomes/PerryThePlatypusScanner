@@ -134,4 +134,5 @@ short b_retract(Buffer* const pBD);
 short b_reset(Buffer* const pBD);
 short b_getcoffset(Buffer* const pBD);
 int b_rewind(Buffer* const pBD);
+char* b_location(Buffer* const pBD);
 #endif

@@ -710,3 +710,24 @@ int b_rewind(Buffer* const pBD)
     pBD->markc_offset = 0;
     return 0;
 }
+
+/*
+Purpose: Get the location of the current
+Author: Aria Gomes
+Version: 1.0
+Called Functions: None
+Parameters: Buffer* const pBD
+Return Value: pBD->cb_head + pBD->markc_offset
+Algorithm: Takes Buffer pointer head and adds the offset to get the location
+*/
+char* b_location(Buffer* const pBD) {
+
+    if (!pBD || pBD->markc_offset > pBD->capacity || pBD->markc_offset < 0) 
+        return NULL;
+
+    if (!pBD) 
+        return NULL;
+
+    /*return pointer to location of char buffer*/
+    return (pBD->cb_head + pBD->markc_offset);
+}
