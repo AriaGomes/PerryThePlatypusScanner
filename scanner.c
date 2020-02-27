@@ -91,213 +91,204 @@ Algorithm:
 					until the state is no longer accepting. Send the character to one
 					of the aa_funcXX functions for processing then return the Token
 *****************************************************/
-Token malar_next_token(void) 
-{
-	Token t = { 0 }; /* token to return after pattern recognition. Set all structure members to 0 */
-	unsigned char c; /* input symbol */
-	int state = 0; /* initial state of the FSM */
-	short lexstart;  /*start offset of a lexeme in the input char buffer (array) */
-	short lexend;    /*end   offset of a lexeme in the input char buffer (array)*/
-	int i; /* a variable to iterate for loops */
+	Token malar_next_token(void)
+	{
+		Token t = { 0 }; /* token to return after pattern recognition. Set all structure members to 0 */
+		unsigned char c; /* input symbol */
+		int state = 0; /* initial state of the FSM */
+		short lexstart;  /*start offset of a lexeme in the input char buffer (array) */
+		short lexend;    /*end   offset of a lexeme in the input char buffer (array)*/
+		int i; /* a variable to iterate for loops */
 
-	while (1) /* endless loop broken by token returns it will generate a warning */
-	{ 
+		while (1) { /* endless loop broken by token returns it will generate a warning */
 
-		c = b_getc(sc_buf);
-
-		/**************************************************
-		PART 1: Implementation of token driven scanner
-		every token is possessed by its own dedicated code
-		***************************************************/
-
-		switch (c) 
-		{
-		case SEOF:				/* Source end-of-file token */
-		case S_EOF:
-			t.code = SEOF_T;
-			t.attribute.seof = SEOF_0;
-			return t;
-		case NL:					/* New Line counter s*/
-			line++;
-			continue;
-		case '\t':
-			continue;
-		case ' ':				/* white space, just continue */
-			continue;
-		case '=':				/* Assignment operator token */
-			if ((c = b_getc(sc_buf)) == '=') /* Relational operator token */
-			{ 
-				t.code = REL_OP_T;
-				t.attribute.rel_op = EQ;
-				return t;
-			}
-			b_retract(sc_buf); /* if its not the relational operator retract the previous letter */
-			t.code = ASS_OP_T;
-			return t;
-			/* Arithmetic operator token */
-		case '*':			/* Multiplication */
-			t.code = ART_OP_T;
-			t.attribute.arr_op = MULT;
-			return t;
-		case '/':			/* Divide */
-			t.code = ART_OP_T;
-			t.attribute.arr_op = DIV;
-			return t;
-		case '-':			/* Subtract */
-			t.code = ART_OP_T;
-			t.attribute.arr_op = MINUS;
-			return t;
-		case '+':			/* Addition */
-			t.code = ART_OP_T;
-			t.attribute.arr_op = PLUS;
-			return t;
-		case '<':
-			if ((c = b_getc(sc_buf)) == '>') {	/* Relational operator token -- Not Equal */
-				t.code = REL_OP_T;
-				t.attribute.rel_op = NE;
-				return t;
-			}
-			else if (c == '<') {			/* String concatenation operator token */
-				t.code = SCC_OP_T;
-				return t;
-			}
-			b_retract(sc_buf);
-			t.code = REL_OP_T;			/* Relational operator token -- Less Than */
-			t.attribute.rel_op = LT;
-			return t;
-		case '>':				/* Relational operator token -- Greater Than */
-			t.code = REL_OP_T;
-			t.attribute.rel_op = GT;
-			return t;
-		case '.':				/* Logical operator token */
-			b_markc(sc_buf, b_getcoffset(sc_buf));
 			c = b_getc(sc_buf);
-			
-			if (c == 'A' && b_getc(sc_buf) == 'N' && b_getc(sc_buf) == 'D' && b_getc(sc_buf) == '.') /* AND Operator */
-			{
-				t.code = LOG_OP_T;
-				t.attribute.log_op = AND;
+
+			/**************************************************
+			PART 1: Implementation of token driven scanner
+			every token is possessed by its own dedicated code
+			***************************************************/
+
+			switch (c) {
+			case SEOF:				/* Source end-of-file token */
+			case S_EOF:
+				t.code = SEOF_T;
+				t.attribute.seof = SEOF_0;
 				return t;
-			}
-			else if (c == 'O' && b_getc(sc_buf) == 'R' && b_getc(sc_buf) == '.') /* OR Operator*/
-			{	
-				t.code = LOG_OP_T;
-				t.attribute.log_op = OR;
-				return t;
-			}
-			else /* Error */
-			{	
-				b_reset(sc_buf);
-				t.code = ERR_T;
-				t.attribute.err_lex[0] = '.';
-				t.attribute.err_lex[1] = '\0';
-				return t;
-			}
-		case '(':				/* Left parenthesis token */
-			t.code = LPR_T;
-			return t;
-		case ')':				/* Right parenthesis token */
-			t.code = RPR_T;
-			return t;
-		case '{':				/* Left brace token */
-			t.code = LBR_T;
-			return t;
-		case '}':				/* Right brace token */
-			t.code = RBR_T;
-			return t;
-		case ',':				/* Comma token */
-			t.code = COM_T;
-			return t;
-		case ';':				/* End of statement *(semi - colon) */
-			t.code = EOS_T;
-			return t;
-		case '!':
-			if ((c = b_getc(sc_buf)) == '!') {	/* Comment Token */
-				c = b_getc(sc_buf);
-				while (c != NL) 
-				{
-					c = b_getc(sc_buf);
-					if (c == SEOF || c == S_EOF) 
-					{
-						t.code = ERR_T;
-						t.attribute.err_lex[0] = c;
-						t.attribute.err_lex[1] = SEOF;
-						return t;
-					}
-				}
+			case NL:					/* New Line counter s*/
 				line++;
 				continue;
+			case '\t':
+				continue;
+			case ' ':				/* white space, just continue */
+				continue;
+			case '=':				/* Assignment operator token */
+				if ((c = b_getc(sc_buf)) == '=') { /* Relational operator token */
+					t.code = REL_OP_T;
+					t.attribute.rel_op = EQ;
+					return t;
+				}
+				b_retract(sc_buf); /* if its not the relational operator retract the previous letter */
+				t.code = ASS_OP_T;
+				return t;
+				/* Arithmetic operator token */
+			case '*':			/* Multiplication */
+				t.code = ART_OP_T;
+				t.attribute.arr_op = MULT;
+				return t;
+			case '/':			/* Divide */
+				t.code = ART_OP_T;
+				t.attribute.arr_op = DIV;
+				return t;
+			case '-':			/* Subtract */
+				t.code = ART_OP_T;
+				t.attribute.arr_op = MINUS;
+				return t;
+			case '+':			/* Addition */
+				t.code = ART_OP_T;
+				t.attribute.arr_op = PLUS;
+				return t;
+			case '<':
+				if ((c = b_getc(sc_buf)) == '>') {	/* Relational operator token -- Not Equal */
+					t.code = REL_OP_T;
+					t.attribute.rel_op = NE;
+					return t;
+				}
+				else if (c == '<') {			/* String concatenation operator token */
+					t.code = SCC_OP_T;
+					return t;
+				}
+				b_retract(sc_buf);
+				t.code = REL_OP_T;			/* Relational operator token -- Less Than */
+				t.attribute.rel_op = LT;
+				return t;
+			case '>':				/* Relational operator token -- Greater Than */
+				t.code = REL_OP_T;
+				t.attribute.rel_op = GT;
+				return t;
+			case '.':				/* Logical operator token */
+				b_markc(sc_buf, b_getcoffset(sc_buf));
+				c = b_getc(sc_buf);
+				/* AND Operator */
+				if (c == 'A' && b_getc(sc_buf) == 'N' && b_getc(sc_buf) == 'D' && b_getc(sc_buf) == '.') {
+					t.code = LOG_OP_T;
+					t.attribute.log_op = AND;
+					return t;
+				}
+				else if (c == 'O' && b_getc(sc_buf) == 'R' && b_getc(sc_buf) == '.') {	/* OR Operator*/
+					t.code = LOG_OP_T;
+					t.attribute.log_op = OR;
+					return t;
+				}
+				else {	/* Error */
+					b_reset(sc_buf);
+					t.code = ERR_T;
+					t.attribute.err_lex[0] = '.';
+					t.attribute.err_lex[1] = '\0';
+					return t;
+				}
+			case '(':				/* Left parenthesis token */
+				t.code = LPR_T;
+				return t;
+			case ')':				/* Right parenthesis token */
+				t.code = RPR_T;
+				return t;
+			case '{':				/* Left brace token */
+				t.code = LBR_T;
+				return t;
+			case '}':				/* Right brace token */
+				t.code = RBR_T;
+				return t;
+			case ',':				/* Comma token */
+				t.code = COM_T;
+				return t;
+			case ';':				/* End of statement *(semi - colon) */
+				t.code = EOS_T;
+				return t;
+			case '!':
+				if ((c = b_getc(sc_buf)) == '!') {	/* Comment Token */
+					c = b_getc(sc_buf);
+					while (c != NL) {
+						c = b_getc(sc_buf);
+						if (c == SEOF || c == S_EOF) {
+							t.code = ERR_T;
+							t.attribute.err_lex[0] = c;
+							t.attribute.err_lex[1] = SEOF;
+							return t;
+						}
+					}
+					line++;
+					continue;
+				}
+				else {				/* ERROR */
+					t.code = ERR_T;
+					t.attribute.err_lex[0] = '!';
+					t.attribute.err_lex[1] = c;
+					t.attribute.err_lex[2] = SEOF;
+					while (b_getc(sc_buf) != NL) {}
+					line++;
+					return t;
+				}
 			}
-			else /* ERROR */
-			{				
-				t.code = ERR_T;
-				t.attribute.err_lex[0] = '!';
-				t.attribute.err_lex[1] = c;
-				t.attribute.err_lex[2] = SEOF;
-				while (b_getc(sc_buf) != NL) {}
-				line++;
+
+			/************************************************************
+			PART 2: Implementation of Finite State Machine (DFA)
+			or Transition Table driven Scanner
+			*************************************************************/
+
+			if (isdigit(c) || isalpha(c) || c == '"') {
+
+				/* retract input so that it has the last character */
+				lexstart = b_retract(sc_buf);
+				b_markc(sc_buf, lexstart); /* set markc offset so that we know the beginning of this lexeme*/
+				state = 0;
+				c = b_getc(sc_buf);
+
+				/* If state is NOAS continue until state is not NOAS*/
+				while (as_table[state] == NOAS) {
+					state = get_next_state(state, c); /* get next state */
+					if (as_table[state] != NOAS) /* Break loop since now AS state */
+						break;
+					c = b_getc(sc_buf); /* get next character */
+				}
+
+				/* if ASWR then retract buffer */
+				if (as_table[state] == ASWR)
+					b_retract(sc_buf);
+
+				/* Accepting state found so set lexend using getc_offset */
+				lexend = b_getcoffset(sc_buf);
+
+				/* create Temporary Lexeme Buffer */
+				lex_buf = b_allocate((lexend - lexstart) + 1, 0, 'f');
+				if (lex_buf == NULL) { /* buffer not created correctly s*/
+					scerrnum = 1;
+					aa_func12("RUN TIME ERROR");
+				}
+
+				b_reset(sc_buf); /* reset the lexeme to the mark set from before */
+				/* add all the characters to the buffer */
+				for (i = lexstart; i < lexend; i++)
+					b_addc(lex_buf, b_getc(sc_buf));
+
+				/* add the SEOF character */
+				b_addc(lex_buf, SEOF);
+				/* run the aa_funcXX(char*) function depending on the end state */
+				t = aa_table[state](b_location(lex_buf));
+				/* free the temporary buffer */
+				b_free(lex_buf);
 				return t;
 			}
-		}
 
-		/************************************************************
-		PART 2: Implementation of Finite State Machine (DFA)
-		or Transition Table driven Scanner
-		*************************************************************/
-
-		if (isdigit(c) || isalpha(c) || c == '"') 
-		{
-
-			/* retract input so that it has the last character */
-			lexstart = b_retract(sc_buf);
-			b_markc(sc_buf, lexstart); /* set markc offset so that we know the beginning of this lexeme*/
-			state = 0;
-			c = b_getc(sc_buf);
-
-			/* If state is NOAS continue until state is not NOAS*/
-			while (as_table[state] == NOAS) 
-			{
-				state = get_next_state(state, c); /* get next state */
-				if (as_table[state] != NOAS) /* Break loop since now AS state */
-					break;
-				c = b_getc(sc_buf); /* get next character */
-			}
-
-			/* if ASWR then retract buffer */
-			if (as_table[state] == ASWR)
-				b_retract(sc_buf);
-
-			/* Accepting state found so set lexend using getc_offset */
-			lexend = b_getcoffset(sc_buf);
-
-			/* create Temporary Lexeme Buffer */
-			lex_buf = b_allocate((lexend - lexstart) + 1, 0, 'f');
-			if (lex_buf == NULL) { /* buffer not created correctly s*/
-				scerrnum = 1;
-				aa_func12("RUN TIME ERROR");
-			}
-
-			b_reset(sc_buf); /* reset the lexeme to the mark set from before */
-			/* add all the characters to the buffer */
-			for (i = lexstart; i < lexend; i++)
-				b_addc(lex_buf, b_getc(sc_buf));
-
-			/* add the SEOF character */
-			b_addc(lex_buf, SEOF);
-			/* run the aa_funcXX(char*) function depending on the end state */
-			t = aa_table[state](b_location(lex_buf));
-			/* free the temporary buffer */
-			b_free(lex_buf);
+			t.code = ERR_T;
+			t.attribute.err_lex[0] = c;
+			t.attribute.err_lex[1] = SEOF;
 			return t;
 		}
-
-		t.code = ERR_T;
-		t.attribute.err_lex[0] = c;
-		t.attribute.err_lex[1] = SEOF;
 		return t;
 	}
-	return t;
-}
+
+
 
 /* DO NOT MODIFY THE CODE OF THIS FUNCTION
 YOU CAN REMOVE THE COMMENTS ONLY */
@@ -360,7 +351,7 @@ int char_class(char c)
 		val = 2;
 	else if (c == '.') /* . */
 		val = 3;
-	else if (c == '@') /* @ */
+	else if (c == '#') /* # */
 		val = 4;
 	else if (c == '"') /* " */
 		val = 6;
@@ -386,16 +377,14 @@ Algorithm:			Check to make sure lexeme is not a keyword, if it is returns the ke
 					Returns the variable token
 *****************************************************/
 
-Token aa_func02(char lexeme[]) 
-{
+Token aa_func02(char lexeme[]) {
+
 	Token t;
 	unsigned int i;
 
 	/* check if keyword */
-	for (i = 0; i < KWT_SIZE; i++) 
-	{
-		if ((strcmp(lexeme, kw_table[i])) == 0) 
-		{
+	for (i = 0; i < KWT_SIZE; i++) {
+		if ((strcmp(lexeme, kw_table[i])) == 0) {
 			t.code = KW_T; /* save the keyword token */
 			t.attribute.kwt_idx = i; /* svave the keyword attribute */
 			return t; /* return keyword */
@@ -406,28 +395,27 @@ Token aa_func02(char lexeme[])
 	t.code = AVID_T;
 
 	/* make sure lexeme is not longer than VID_LEN */
-	if (strlen(lexeme) > VID_LEN) 
-	{
-		for (i = 0; i < VID_LEN; i++) 
+	if (strlen(lexeme) > VID_LEN) {
+		for (i = 0; i < VID_LEN; i++) {
 			t.attribute.vid_lex[i] = lexeme[i]; /* add correct character length */
-		
+		}
 		t.attribute.vid_lex[i] = '\0'; /* add SEOF as last character */
 	}
-	else /* lexeme is not longer than VID_LEN */
-	{ 
-		for (i = 0; i < strlen(lexeme); i++) 
+	else { /* lexeme is not longer than VID_LEN */
+		for (i = 0; i < strlen(lexeme); i++) {
 			t.attribute.vid_lex[i] = lexeme[i]; /* add the characters to t */
-		
+		}
 		t.attribute.vid_lex[i] = '\0'; /* add SEOF as last character */
 	}
 
 	return t;
 }
 
+
 /*****************************************************
 Function Name:		aa_func03
 Purpose:			Returns the token for a variable name
-Author:				Aria Gomes
+Author:				Aria Gomes & Nicholas King 
 History/Version:	February 25			 v.1.0
 Called Functions:	strlen()
 Parameters:			char lexeme[]
@@ -443,19 +431,17 @@ Token aa_func03(char lexeme[])
 	/* save SVID code */
 	t.code = SVID_T;
 
-	if (strlen(lexeme) > VID_LEN) /* if the lexeme is longer than VID_LEN */
-	{ 
-		for (i = 0; i < VID_LEN; i++) 
+	if (strlen(lexeme) > VID_LEN) { /* if the lexeme is longer than VID_LEN */
+		for (i = 0; i < VID_LEN; i++) {
 			t.attribute.vid_lex[i] = lexeme[i]; /* copy lexeme to attribute */
-		
-		t.attribute.vid_lex[VID_LEN - 1] = '@'; /* add the @ variable symbol then SEOF */
+		}
+		t.attribute.vid_lex[VID_LEN - 1] = '#'; /* add the # variable symbol then SEOF */
 		t.attribute.vid_lex[VID_LEN] = '\0';
 	}
-	else /* lexeme is not longer */
-	{ 
-		for (i = 0; i < strlen(lexeme); i++) 
+	else { /* lexeme is not longer */
+		for (i = 0; i < strlen(lexeme); i++) {
 			t.attribute.vid_lex[i] = lexeme[i]; /* copy lexeme to attribute */
-
+		}
 		t.attribute.vid_lex[i] = '\0';
 	}
 
@@ -581,10 +567,8 @@ Token aa_func12(char lexeme[])
 	t.code = ERR_T;
 
 	/* check length of lexeme */
-	if (strlen(lexeme) > ERR_LEN) 
-	{
-		for (i = 0; i < ERR_LEN - 3; i++) /* add lexeme until ERR_LEN -3 */
-		{ 
+	if (strlen(lexeme) > ERR_LEN) {
+		for (i = 0; i < ERR_LEN - 3; i++) { /* add lexeme until ERR_LEN -3 */
 			if (lexeme[i] == '\n')
 				line++;
 			t.attribute.err_lex[i] = lexeme[i];
@@ -593,10 +577,8 @@ Token aa_func12(char lexeme[])
 			t.attribute.err_lex[i] = '.'; /* add .'s for the final 3 */
 		t.attribute.err_lex[i] = '\0'; /* add SEOF */
 	}
-	else 
-	{
-		for (i = 0; i < strlen(lexeme); i++) /* add lexeme to err_lex */
-		{ 
+	else {
+		for (i = 0; i < strlen(lexeme); i++) { /* add lexeme to err_lex */
 			if (lexeme[i] == '\n')
 				line++;
 			t.attribute.err_lex[i] = lexeme[i];

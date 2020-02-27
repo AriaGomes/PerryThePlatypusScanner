@@ -25,6 +25,7 @@
   *    '\0' or one of 255,0xFF,EOF
   */
 
+#define EOL 0x0a /* new line */
 #define SEOF '\0' /* SEOF Character */
 #define S_EOF (unsigned char)255
 
@@ -43,32 +44,34 @@
 
    /* State transition table definition */
 
-#define TABLE_COLUMNS 8 /*transition table - type of states defined in separate table */
-int  st_table[][TABLE_COLUMNS] = 
-{
-	/* State 0 */  {1, 6, 4, ES, ES, ES, 9, ER},
-	/* State 1 */  {1, 1, 1, 2, 3, 2, ES, ER},
-	/* State 2 */  {IS, IS, IS, IS, IS, IS, IS, IS},
-	/* State 3 */  {IS, IS, IS, IS, IS, IS, IS, IS},
-	/* State 4 */  {ES, 4, 4, 7, 5, 5, IS, IS},
-	/* State 5 */  {IS, IS, IS, IS, IS, IS, IS, IS},
-	/* State 6 */  {ES, 6, ES, 7, ES, 5, ES, ER},
-	/* State 7 */  {8, 7, 7, 8, 8, 8, ES, ER},
-	/* State 8 */  {IS, IS, IS, IS, IS, IS, IS, IS},
-	/* State 9 */  {9, 9, 9, 9, 9, 9, 10, ES},
-	/* State 10 */ {IS, IS, IS, IS, IS, IS, IS, IS},
-	/* State 11 */ {IS, IS, IS, IS, IS, IS, IS, IS},
-	/* State 12 */ {IS, IS, IS, IS, IS, IS, IS, IS}
-};
+/* State transition table definition */
+#define TABLE_COLUMNS 8
+/*transition table - type of states defined in separate table */
+int  st_table[][TABLE_COLUMNS] = {
+	/*			[a-zA-Z]	0	 [1-9]		 .		#		"	  SEOF	   other*/
 
+	/* State 0 */  {1,		6,		4,		ES,		ES,		ES,		9,		ER}, /*Beginning state*/
+	/* State 1 */  {1,		1,		1,		2,		3,		2,		ES,		ER}, /*Letters/Digits state*/
+	/* State 2 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*AVID accepting state w/ retract*/
+	/* State 3 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*SVID accepting state w/o retract*/
+	/* State 4 */  {ES,		4,		4,		7,		5,		5,		IS,		IS}, /*Non-zero digits state*/
+	/* State 5 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Decimal integer literal accepting state w/ retract*/
+	/* State 6 */  {ES,		6,		ES,		7,		ES,		5,		ES,		ER}, /*0 digit state*/
+	/* State 7 */  {8,		7,		7,		8,		8,		8,		ES,		ER}, /*Digits state*/
+	/* State 8 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Floating point literal accepting state w/ retract*/
+	/* State 9 */  {9,		9,		9,		9,		9,		9,		10,		ES}, /*String literal state*/
+	/* State 10 */ {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*String literal accept state w/ retract*/
+	/* State 11 */ {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Error state w/o retract*/
+	/* State 12 */ {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}  /*Error state w/ retract*/
+	/* State 13 reserved for future use */
+};
 
 /* Accepting state table definition */
 #define ASWR     1  /* accepting state with retract */
 #define ASNR     3  /* accepting state with no retract */
 #define NOAS     0  /* not accepting state */
 
-int as_table[] = 
-{
+int as_table[] = {
 	/* State 0 */ NOAS,
 	/* State 1 */ NOAS,
 	/* State 2 */ ASWR,
@@ -105,8 +108,7 @@ typedef Token(*PTR_AAF)(char* lexeme);
  * Token (*aa_table[])(char lexeme[]) = {
  */
 
-PTR_AAF aa_table[] = 
-{
+PTR_AAF aa_table[] = {
 	/* State 0 */ NULL,
 	/* State 1 */ NULL,
 	/* State 2 */ aa_func02,
@@ -120,6 +122,7 @@ PTR_AAF aa_table[] =
 	/* State 10 */ aa_func10,
 	/* State 11 */ aa_func12,
 	/* State 12 */ aa_func12
+	/* State 13 */ /*NULL*/
 };
 
 /* Keyword lookup table (.AND. and .OR. are not keywords) */
