@@ -205,6 +205,21 @@ Algorithm:
 			case ';':				/* End of statement *(semi - colon) */
 				t.code = EOS_T;
 				return t;
+			case '#':
+				if ((c = b_getc(sc_buf)) == '#')
+				{
+					c = b_getc(sc_buf);
+					t.code = SCC_OP_T;
+					return t;
+				}
+				else
+				{
+					c = '#';
+					b_retract(sc_buf);
+					t.attribute.err_lex[0] = c;
+					t.code = ERR_T;
+					return t;
+				}
 			case '!':
 				if ((c = b_getc(sc_buf)) == '!') {	/* Comment Token */
 					c = b_getc(sc_buf);
@@ -523,7 +538,7 @@ Algorithm:			Setting the attribute of the string offset to the location where
 					end of the lexeme string by using the buffer addc function.
 					Returning the generated token after assigning STR_T to the string token.
 *****************************************************/
-Token aa_func10(char lexeme[]) 
+Token aa_func11(char lexeme[]) 
 {
 	Token t;
 	unsigned int i;
@@ -532,7 +547,7 @@ Token aa_func10(char lexeme[])
 
 	/* set token to head of str table */
 	t.attribute.str_offset = b_limit(str_LTBL);
-	for (i = 0; i < strlen(lexeme); i++) 
+	for (i = 0; i < strlen(lexeme); i++)
 	{
 		if (lexeme[i] != '"') /* ignore opening and closing " */
 			b_addc(str_LTBL, lexeme[i]);

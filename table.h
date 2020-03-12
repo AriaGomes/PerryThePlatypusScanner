@@ -66,25 +66,26 @@ int  st_table[][TABLE_COLUMNS] = {
 	/* State 13 reserved for future use */
 };
 
-/* Accepting state table definition */
 #define ASWR     1  /* accepting state with retract */
 #define ASNR     3  /* accepting state with no retract */
 #define NOAS     0  /* not accepting state */
 
-int as_table[] = {
-	/* State 0 */ NOAS,
-	/* State 1 */ NOAS,
-	/* State 2 */ ASWR,
-	/* State 3 */ ASNR,
-	/* State 4 */ NOAS,
-	/* State 5 */ ASWR,
-	/* State 6 */ NOAS,
-	/* State 7 */ NOAS,
-	/* State 8 */ ASWR,
-	/* State 9 */ NOAS,
+int as_table[] = 
+{
+	/* State 0 */  NOAS,
+	/* State 1 */  NOAS,
+	/* State 2 */  ASWR,
+	/* State 3 */  ASNR,
+	/* State 4 */  NOAS,
+	/* State 5 */  ASWR,
+	/* State 6 */  NOAS,
+	/* State 7 */  NOAS,
+	/* State 8 */  ASWR,
+	/* State 9 */  NOAS,
 	/* State 10 */ ASNR,
 	/* State 11 */ ASNR,
 	/* State 12 */ ASWR,
+	/* State 13*/ /*NULL*/
 };
 
 /* Accepting action function declarations */
@@ -93,7 +94,7 @@ Token aa_func02(char* lexeme);
 Token aa_func03(char* lexeme);
 Token aa_func05(char* lexeme);
 Token aa_func08(char* lexeme);
-Token aa_func10(char* lexeme);
+Token aa_func11(char* lexeme);
 Token aa_func12(char* lexeme);
 
 /* defining a new type: pointer to function (of one char * argument)
@@ -119,7 +120,7 @@ PTR_AAF aa_table[] = {
 	/* State 7 */ NULL,
 	/* State 8 */ aa_func08,
 	/* State 9 */ NULL,
-	/* State 10 */ aa_func10,
+	/* State 10 */ aa_func11,
 	/* State 11 */ aa_func12,
 	/* State 12 */ aa_func12
 	/* State 13 */ /*NULL*/
