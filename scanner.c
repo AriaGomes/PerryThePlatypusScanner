@@ -205,7 +205,7 @@ Algorithm:
 			case ';':				/* End of statement *(semi - colon) */
 				t.code = EOS_T;
 				return t;
-			case '#':
+			case '#':				/* String concatenation Token */
 				if ((c = b_getc(sc_buf)) == '#')
 				{
 					c = b_getc(sc_buf);
