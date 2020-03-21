@@ -1,4 +1,4 @@
-/* 
+/*
 Filename:		scanner.c
 Compiler:		MS Visual Studio 2019
 Author:			Aria Gomes & Nicholas King
@@ -61,7 +61,7 @@ Parameters:			pBuffer
 Return Value:		int (Exit success or exit failure)
 Algorithm:			call functions and initialize variables to initalize the scanner
 *****************************************************/
-int scanner_init(pBuffer psc_buf) 
+int scanner_init(pBuffer psc_buf)
 {
 	if (b_isempty(psc_buf)) return EXIT_FAILURE;/*1*/
 	/* in case the buffer has been read previously  */
@@ -87,221 +87,221 @@ Algorithm:
 					Handle character if it is a symbol to be used, returning a token each time.
 					If the character is a space, tab, or new line continue the loop with the next character
 			PART 2
-					The character is a ", a letter, or a digit. Read all the characters 
+					The character is a ", a letter, or a digit. Read all the characters
 					until the state is no longer accepting. Send the character to one
 					of the aa_funcXX functions for processing then return the Token
 *****************************************************/
-	Token malar_next_token(void)
-	{
-		Token t = { 0 }; /* token to return after pattern recognition. Set all structure members to 0 */
-		unsigned char c; /* input symbol */
-		int state = 0; /* initial state of the FSM */
-		short lexstart;  /*start offset of a lexeme in the input char buffer (array) */
-		short lexend;    /*end   offset of a lexeme in the input char buffer (array)*/
-		int i; /* a variable to iterate for loops */
+Token malar_next_token(void)
+{
+	Token t = { 0 }; /* token to return after pattern recognition. Set all structure members to 0 */
+	unsigned char c; /* input symbol */
+	int state = 0; /* initial state of the FSM */
+	short lexstart;  /*start offset of a lexeme in the input char buffer (array) */
+	short lexend;    /*end   offset of a lexeme in the input char buffer (array)*/
+	int i; /* a variable to iterate for loops */
 
-		while (1) { /* endless loop broken by token returns it will generate a warning */
+	while (1) { /* endless loop broken by token returns it will generate a warning */
 
-			c = b_getc(sc_buf);
+		c = b_getc(sc_buf);
 
-			/**************************************************
-			PART 1: Implementation of token driven scanner
-			every token is possessed by its own dedicated code
-			***************************************************/
+		/**************************************************
+		PART 1: Implementation of token driven scanner
+		every token is possessed by its own dedicated code
+		***************************************************/
 
-			switch (c) {
-			case SEOF:				/* Source end-of-file token */
-			case S_EOF:
-				t.code = SEOF_T;
-				t.attribute.seof = SEOF_0;
+		switch (c) {
+		case SEOF:				/* Source end-of-file token */
+		case S_EOF:
+			t.code = SEOF_T;
+			t.attribute.seof = SEOF_0;
+			return t;
+		case NL:					/* New Line counter s*/
+			line++;
+			continue;
+		case '\t':
+			continue;
+		case ' ':				/* white space, just continue */
+			continue;
+		case '=':				/* Assignment operator token */
+			if ((c = b_getc(sc_buf)) == '=') { /* Relational operator token */
+				t.code = REL_OP_T;
+				t.attribute.rel_op = EQ;
 				return t;
-			case NL:					/* New Line counter s*/
+			}
+			b_retract(sc_buf); /* if its not the relational operator retract the previous letter */
+			t.code = ASS_OP_T;
+			return t;
+			/* Arithmetic operator token */
+		case '*':			/* Multiplication */
+			t.code = ART_OP_T;
+			t.attribute.arr_op = MULT;
+			return t;
+		case '/':			/* Divide */
+			t.code = ART_OP_T;
+			t.attribute.arr_op = DIV;
+			return t;
+		case '-':			/* Subtract */
+			t.code = ART_OP_T;
+			t.attribute.arr_op = MINUS;
+			return t;
+		case '+':			/* Addition */
+			t.code = ART_OP_T;
+			t.attribute.arr_op = PLUS;
+			return t;
+		case '<':
+			if ((c = b_getc(sc_buf)) == '>') {	/* Relational operator token -- Not Equal */
+				t.code = REL_OP_T;
+				t.attribute.rel_op = NE;
+				return t;
+			}
+			else if (c == '<') {			/* String concatenation operator token */
+				t.code = SCC_OP_T;
+				return t;
+			}
+			b_retract(sc_buf);
+			t.code = REL_OP_T;			/* Relational operator token -- Less Than */
+			t.attribute.rel_op = LT;
+			return t;
+		case '>':				/* Relational operator token -- Greater Than */
+			t.code = REL_OP_T;
+			t.attribute.rel_op = GT;
+			return t;
+		case '.':				/* Logical operator token */
+			b_markc(sc_buf, b_getcoffset(sc_buf));
+			c = b_getc(sc_buf);
+			/* AND Operator */
+			if (c == 'A' && b_getc(sc_buf) == 'N' && b_getc(sc_buf) == 'D' && b_getc(sc_buf) == '.') {
+				t.code = LOG_OP_T;
+				t.attribute.log_op = AND;
+				return t;
+			}
+			else if (c == 'O' && b_getc(sc_buf) == 'R' && b_getc(sc_buf) == '.') {	/* OR Operator*/
+				t.code = LOG_OP_T;
+				t.attribute.log_op = OR;
+				return t;
+			}
+			else {	/* Error */
+				b_reset(sc_buf);
+				t.code = ERR_T;
+				t.attribute.err_lex[0] = '.';
+				t.attribute.err_lex[1] = '\0';
+				return t;
+			}
+		case '(':				/* Left parenthesis token */
+			t.code = LPR_T;
+			return t;
+		case ')':				/* Right parenthesis token */
+			t.code = RPR_T;
+			return t;
+		case '{':				/* Left brace token */
+			t.code = LBR_T;
+			return t;
+		case '}':				/* Right brace token */
+			t.code = RBR_T;
+			return t;
+		case ',':				/* Comma token */
+			t.code = COM_T;
+			return t;
+		case ';':				/* End of statement *(semi - colon) */
+			t.code = EOS_T;
+			return t;
+		case '#':				/* String concatenation Token */
+			if ((c = b_getc(sc_buf)) == '#')
+			{
+				c = b_getc(sc_buf);
+				t.code = SCC_OP_T;
+				return t;
+			}
+			else
+			{
+				c = '#';
+				b_retract(sc_buf);
+				t.attribute.err_lex[0] = c;
+				t.code = ERR_T;
+				return t;
+			}
+		case '!':
+			if ((c = b_getc(sc_buf)) == '!') {	/* Comment Token */
+				c = b_getc(sc_buf);
+				while (c != NL) {
+					c = b_getc(sc_buf);
+					if (c == SEOF || c == S_EOF) {
+						t.code = ERR_T;
+						t.attribute.err_lex[0] = c;
+						t.attribute.err_lex[1] = SEOF;
+						return t;
+					}
+				}
 				line++;
 				continue;
-			case '\t':
-				continue;
-			case ' ':				/* white space, just continue */
-				continue;
-			case '=':				/* Assignment operator token */
-				if ((c = b_getc(sc_buf)) == '=') { /* Relational operator token */
-					t.code = REL_OP_T;
-					t.attribute.rel_op = EQ;
-					return t;
-				}
-				b_retract(sc_buf); /* if its not the relational operator retract the previous letter */
-				t.code = ASS_OP_T;
+			}
+			else {				/* ERROR */
+				t.code = ERR_T;
+				t.attribute.err_lex[0] = '!';
+				t.attribute.err_lex[1] = c;
+				t.attribute.err_lex[2] = SEOF;
+				while (b_getc(sc_buf) != NL) {}
+				line++;
 				return t;
-				/* Arithmetic operator token */
-			case '*':			/* Multiplication */
-				t.code = ART_OP_T;
-				t.attribute.arr_op = MULT;
-				return t;
-			case '/':			/* Divide */
-				t.code = ART_OP_T;
-				t.attribute.arr_op = DIV;
-				return t;
-			case '-':			/* Subtract */
-				t.code = ART_OP_T;
-				t.attribute.arr_op = MINUS;
-				return t;
-			case '+':			/* Addition */
-				t.code = ART_OP_T;
-				t.attribute.arr_op = PLUS;
-				return t;
-			case '<':
-				if ((c = b_getc(sc_buf)) == '>') {	/* Relational operator token -- Not Equal */
-					t.code = REL_OP_T;
-					t.attribute.rel_op = NE;
-					return t;
-				}
-				else if (c == '<') {			/* String concatenation operator token */
-					t.code = SCC_OP_T;
-					return t;
-				}
+			}
+		}
+
+		/************************************************************
+		PART 2: Implementation of Finite State Machine (DFA)
+		or Transition Table driven Scanner
+		*************************************************************/
+
+		if (isdigit(c) || isalpha(c) || c == '"') {
+
+			/* retract input so that it has the last character */
+			lexstart = b_retract(sc_buf);
+			b_markc(sc_buf, lexstart); /* set markc offset so that we know the beginning of this lexeme*/
+			state = 0;
+			c = b_getc(sc_buf);
+
+			/* If state is NOAS continue until state is not NOAS*/
+			while (as_table[state] == NOAS) {
+				state = get_next_state(state, c); /* get next state */
+				if (as_table[state] != NOAS) /* Break loop since now AS state */
+					break;
+				c = b_getc(sc_buf); /* get next character */
+			}
+
+			/* if ASWR then retract buffer */
+			if (as_table[state] == ASWR)
 				b_retract(sc_buf);
-				t.code = REL_OP_T;			/* Relational operator token -- Less Than */
-				t.attribute.rel_op = LT;
-				return t;
-			case '>':				/* Relational operator token -- Greater Than */
-				t.code = REL_OP_T;
-				t.attribute.rel_op = GT;
-				return t;
-			case '.':				/* Logical operator token */
-				b_markc(sc_buf, b_getcoffset(sc_buf));
-				c = b_getc(sc_buf);
-				/* AND Operator */
-				if (c == 'A' && b_getc(sc_buf) == 'N' && b_getc(sc_buf) == 'D' && b_getc(sc_buf) == '.') {
-					t.code = LOG_OP_T;
-					t.attribute.log_op = AND;
-					return t;
-				}
-				else if (c == 'O' && b_getc(sc_buf) == 'R' && b_getc(sc_buf) == '.') {	/* OR Operator*/
-					t.code = LOG_OP_T;
-					t.attribute.log_op = OR;
-					return t;
-				}
-				else {	/* Error */
-					b_reset(sc_buf);
-					t.code = ERR_T;
-					t.attribute.err_lex[0] = '.';
-					t.attribute.err_lex[1] = '\0';
-					return t;
-				}
-			case '(':				/* Left parenthesis token */
-				t.code = LPR_T;
-				return t;
-			case ')':				/* Right parenthesis token */
-				t.code = RPR_T;
-				return t;
-			case '{':				/* Left brace token */
-				t.code = LBR_T;
-				return t;
-			case '}':				/* Right brace token */
-				t.code = RBR_T;
-				return t;
-			case ',':				/* Comma token */
-				t.code = COM_T;
-				return t;
-			case ';':				/* End of statement *(semi - colon) */
-				t.code = EOS_T;
-				return t;
-			case '#':				/* String concatenation Token */
-				if ((c = b_getc(sc_buf)) == '#')
-				{
-					c = b_getc(sc_buf);
-					t.code = SCC_OP_T;
-					return t;
-				}
-				else
-				{
-					c = '#';
-					b_retract(sc_buf);
-					t.attribute.err_lex[0] = c;
-					t.code = ERR_T;
-					return t;
-				}
-			case '!':
-				if ((c = b_getc(sc_buf)) == '!') {	/* Comment Token */
-					c = b_getc(sc_buf);
-					while (c != NL) {
-						c = b_getc(sc_buf);
-						if (c == SEOF || c == S_EOF) {
-							t.code = ERR_T;
-							t.attribute.err_lex[0] = c;
-							t.attribute.err_lex[1] = SEOF;
-							return t;
-						}
-					}
-					line++;
-					continue;
-				}
-				else {				/* ERROR */
-					t.code = ERR_T;
-					t.attribute.err_lex[0] = '!';
-					t.attribute.err_lex[1] = c;
-					t.attribute.err_lex[2] = SEOF;
-					while (b_getc(sc_buf) != NL) {}
-					line++;
-					return t;
-				}
+
+			/* Accepting state found so set lexend using getc_offset */
+			lexend = b_getcoffset(sc_buf);
+
+			/* create Temporary Lexeme Buffer */
+			lex_buf = b_allocate((lexend - lexstart) + 1, 0, 'f');
+			if (lex_buf == NULL) { /* buffer not created correctly s*/
+				scerrnum = 1;
+				aa_func12("RUN TIME ERROR");
 			}
 
-			/************************************************************
-			PART 2: Implementation of Finite State Machine (DFA)
-			or Transition Table driven Scanner
-			*************************************************************/
+			b_reset(sc_buf); /* reset the lexeme to the mark set from before */
+			/* add all the characters to the buffer */
+			for (i = lexstart; i < lexend; i++)
+				b_addc(lex_buf, b_getc(sc_buf));
 
-			if (isdigit(c) || isalpha(c) || c == '"') {
-
-				/* retract input so that it has the last character */
-				lexstart = b_retract(sc_buf);
-				b_markc(sc_buf, lexstart); /* set markc offset so that we know the beginning of this lexeme*/
-				state = 0;
-				c = b_getc(sc_buf);
-
-				/* If state is NOAS continue until state is not NOAS*/
-				while (as_table[state] == NOAS) {
-					state = get_next_state(state, c); /* get next state */
-					if (as_table[state] != NOAS) /* Break loop since now AS state */
-						break;
-					c = b_getc(sc_buf); /* get next character */
-				}
-
-				/* if ASWR then retract buffer */
-				if (as_table[state] == ASWR)
-					b_retract(sc_buf);
-
-				/* Accepting state found so set lexend using getc_offset */
-				lexend = b_getcoffset(sc_buf);
-
-				/* create Temporary Lexeme Buffer */
-				lex_buf = b_allocate((lexend - lexstart) + 1, 0, 'f');
-				if (lex_buf == NULL) { /* buffer not created correctly s*/
-					scerrnum = 1;
-					aa_func12("RUN TIME ERROR");
-				}
-
-				b_reset(sc_buf); /* reset the lexeme to the mark set from before */
-				/* add all the characters to the buffer */
-				for (i = lexstart; i < lexend; i++)
-					b_addc(lex_buf, b_getc(sc_buf));
-
-				/* add the SEOF character */
-				b_addc(lex_buf, SEOF);
-				/* run the aa_funcXX(char*) function depending on the end state */
-				t = aa_table[state](b_location(lex_buf));
-				/* free the temporary buffer */
-				b_free(lex_buf);
-				return t;
-			}
-
-			t.code = ERR_T;
-			t.attribute.err_lex[0] = c;
-			t.attribute.err_lex[1] = SEOF;
+			/* add the SEOF character */
+			b_addc(lex_buf, SEOF);
+			/* run the aa_funcXX(char*) function depending on the end state */
+			t = aa_table[state](b_location(lex_buf));
+			/* free the temporary buffer */
+			b_free(lex_buf);
 			return t;
 		}
+
+		t.code = ERR_T;
+		t.attribute.err_lex[0] = c;
+		t.attribute.err_lex[1] = SEOF;
 		return t;
 	}
+	return t;
+}
 
 
 
@@ -331,7 +331,7 @@ int get_next_state(int state, char c)
 	assert(next != IS);
 
 #ifdef DEBUG
-	if (next == IS) 
+	if (next == IS)
 	{
 		printf("Scanner Error: Illegal state:\n");
 		printf("Input symbol: %c Row: %d Column: %d\n", c, state, col);
@@ -351,7 +351,7 @@ Parameters:			char c
 Return Value:		int val
 Algorithm:
 *****************************************************/
-int char_class(char c) 
+int char_class(char c)
 {
 
 	/* Returns the column it comes from based off of the character its read */
@@ -430,7 +430,7 @@ Token aa_func02(char lexeme[]) {
 /*****************************************************
 Function Name:		aa_func03
 Purpose:			Returns the token for a variable name
-Author:				Aria Gomes & Nicholas King 
+Author:				Aria Gomes & Nicholas King
 History/Version:	February 25			 v.1.0
 Called Functions:	strlen()
 Parameters:			char lexeme[]
@@ -438,7 +438,7 @@ Return Value:		Token t
 Algorithm:			Verify the lexeme is valid and return the token
 *****************************************************/
 
-Token aa_func03(char lexeme[]) 
+Token aa_func03(char lexeme[])
 {
 	Token t;
 	unsigned int i;
@@ -471,11 +471,11 @@ History/Version:	February 25			   v.1.0
 Called Functions:	atoff(), strlen(), aa_func12()
 Parameters:			char lexeme[]
 Return Value:		Token t
-Algorithm:			Turns lexeme into a floating point number. and checks if that 
+Algorithm:			Turns lexeme into a floating point number. and checks if that
 					values length is greater than 32 and is between the floating point
 					limits.
 *****************************************************/
-Token aa_func08(char lexeme[]) 
+Token aa_func08(char lexeme[])
 {
 
 	Token t;
@@ -504,7 +504,7 @@ Parameters:			char lexeme[]
 Return Value:		Token t
 Algorithm:			Set token attributes and returns the token
 *****************************************************/
-Token aa_func05(char lexeme[]) 
+Token aa_func05(char lexeme[])
 {
 	Token t;
 	int value;
@@ -530,15 +530,15 @@ History/Version:	February 25			   v.1.0
 Called Functions:	b_limit(), strlen(), b_addc()
 Parameters:			char lexeme[]
 Return Value:		Token t
-Algorithm:			Setting the attribute of the string offset to the location where 
-					the first char of lexeme content will be added to buffer.During the 
-					copying process the quotations first and second are ignored stores 
+Algorithm:			Setting the attribute of the string offset to the location where
+					the first char of lexeme content will be added to buffer.During the
+					copying process the quotations first and second are ignored stores
 					the char lexeme into the string literal table and also checks
-					for new line terminator to then increment the stream adds 0 to 
+					for new line terminator to then increment the stream adds 0 to
 					end of the lexeme string by using the buffer addc function.
 					Returning the generated token after assigning STR_T to the string token.
 *****************************************************/
-Token aa_func11(char lexeme[]) 
+Token aa_func11(char lexeme[])
 {
 	Token t;
 	unsigned int i;
@@ -573,7 +573,7 @@ Return Value:		Token t
 Algorithm:			Adds the attributes of the tokens against several casses
 					and returns the token
 *****************************************************/
-Token aa_func12(char lexeme[]) 
+Token aa_func12(char lexeme[])
 {
 	Token t;
 	unsigned int i;

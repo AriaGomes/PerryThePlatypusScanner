@@ -50,13 +50,13 @@
 int  st_table[][TABLE_COLUMNS] = {
 	/*			[a-zA-Z]	0	 [1-9]		 .		#		"	  SEOF	   other*/
 
-	/* State 0 */  {1,		6,		4,		ES,		ES,		ES,		9,		ER}, /*Beginning state*/
-	/* State 1 */  {1,		1,		1,		2,		3,		2,		ES,		ER}, /*Letters/Digits state*/
+	/* State 0 */  {1,		6,		4,		ES,		ES,		9,		9,		ER}, /*Beginning state*/
+	/* State 1 */  {1,		1,		1,		2,		3,		2,		2,		2}, /*Letters/Digits state*/
 	/* State 2 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*AVID accepting state w/ retract*/
 	/* State 3 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*SVID accepting state w/o retract*/
-	/* State 4 */  {ES,		4,		4,		7,		5,		5,		IS,		IS}, /*Non-zero digits state*/
+	/* State 4 */  {5,		4,		4,		7,		5,		5,		5,		5}, /*Non-zero digits state*/
 	/* State 5 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Decimal integer literal accepting state w/ retract*/
-	/* State 6 */  {ES,		6,		ES,		7,		ES,		5,		ES,		ER}, /*0 digit state*/
+	/* State 6 */  {ES,		6,		ES,		7,		5,		5,		ES,		5}, /*0 digit state*/
 	/* State 7 */  {8,		7,		7,		8,		8,		8,		ES,		ER}, /*Digits state*/
 	/* State 8 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Floating point literal accepting state w/ retract*/
 	/* State 9 */  {9,		9,		9,		9,		9,		9,		10,		ES}, /*String literal state*/
@@ -66,26 +66,25 @@ int  st_table[][TABLE_COLUMNS] = {
 	/* State 13 reserved for future use */
 };
 
+/* Accepting state table definition */
 #define ASWR     1  /* accepting state with retract */
 #define ASNR     3  /* accepting state with no retract */
 #define NOAS     0  /* not accepting state */
 
-int as_table[] = 
-{
-	/* State 0 */  NOAS,
-	/* State 1 */  NOAS,
-	/* State 2 */  ASWR,
-	/* State 3 */  ASNR,
-	/* State 4 */  NOAS,
-	/* State 5 */  ASWR,
-	/* State 6 */  NOAS,
-	/* State 7 */  NOAS,
-	/* State 8 */  ASWR,
-	/* State 9 */  NOAS,
+int as_table[] = {
+	/* State 0 */ NOAS,
+	/* State 1 */ NOAS,
+	/* State 2 */ ASWR,
+	/* State 3 */ ASNR,
+	/* State 4 */ NOAS,
+	/* State 5 */ ASWR,
+	/* State 6 */ NOAS,
+	/* State 7 */ NOAS,
+	/* State 8 */ ASWR,
+	/* State 9 */ NOAS,
 	/* State 10 */ ASNR,
 	/* State 11 */ ASNR,
 	/* State 12 */ ASWR,
-	/* State 13*/ /*NULL*/
 };
 
 /* Accepting action function declarations */
