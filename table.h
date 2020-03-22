@@ -50,14 +50,14 @@
 int  st_table[][TABLE_COLUMNS] = {
 	/*			[a-zA-Z]	0	 [1-9]		 .		#		"	  SEOF	   other*/
 
-	/* State 0 */  {1,		6,		4,		ES,		ES,		9,		9,		ER}, /*Beginning state*/
+	/* State 0 */  {1,		6,		4,		ES,		ES,		9,		9,		ES}, /*Beginning state*/
 	/* State 1 */  {1,		1,		1,		2,		3,		2,		2,		2}, /*Letters/Digits state*/
 	/* State 2 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*AVID accepting state w/ retract*/
 	/* State 3 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*SVID accepting state w/o retract*/
-	/* State 4 */  {5,		4,		4,		7,		5,		5,		5,		5}, /*Non-zero digits state*/
+	/* State 4 */  {ES,		4,		4,		7,		5,		5,		5,		5}, /*Non-zero digits state*/
 	/* State 5 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Decimal integer literal accepting state w/ retract*/
 	/* State 6 */  {ES,		6,		ES,		7,		5,		5,		ES,		5}, /*0 digit state*/
-	/* State 7 */  {8,		7,		7,		8,		8,		8,		ES,		ER}, /*Digits state*/
+	/* State 7 */  {8,		7,		7,		8,		8,		8,		ES,		8}, /*Digits state*/
 	/* State 8 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Floating point literal accepting state w/ retract*/
 	/* State 9 */  {9,		9,		9,		9,		9,		9,		10,		ES}, /*String literal state*/
 	/* State 10 */ {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*String literal accept state w/ retract*/
