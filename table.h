@@ -48,22 +48,21 @@
 #define TABLE_COLUMNS 8
 /*transition table - type of states defined in separate table */
 int  st_table[][TABLE_COLUMNS] = {
-	/*			[a-zA-Z]	0	 [1-9]		 .		#		"	  SEOF	   other*/
+														/*			[a-zA-Z]	0	 [1-9]		 .		#		"	  SEOF	   other*/
 
-	/* State 0 */  {1,		6,		4,		ES,		ES,		9,		9,		ES}, /*Beginning state*/
-	/* State 1 */  {1,		1,		1,		2,		3,		2,		2,		2}, /*Letters/Digits state*/
-	/* State 2 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*AVID accepting state w/ retract*/
-	/* State 3 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*SVID accepting state w/o retract*/
-	/* State 4 */  {ES,		4,		4,		7,		5,		5,		5,		5}, /*Non-zero digits state*/
-	/* State 5 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Decimal integer literal accepting state w/ retract*/
-	/* State 6 */  {ES,		6,		ES,		7,		5,		5,		ES,		5}, /*0 digit state*/
-	/* State 7 */  {8,		7,		7,		8,		8,		8,		ES,		8}, /*Digits state*/
-	/* State 8 */  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Floating point literal accepting state w/ retract*/
-	/* State 9 */  {9,		9,		9,		9,		9,		9,		10,		ES}, /*String literal state*/
-	/* State 10 */ {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*String literal accept state w/ retract*/
-	/* State 11 */ {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, /*Error state w/o retract*/
-	/* State 12 */ {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}  /*Error state w/ retract*/
-	/* State 13 reserved for future use */
+	/* State 0, beginning state*/									  {1,		6,		4,		ES,		ES,		9,		9,		ES},
+	/* State 1, digits or letters state */							  {1,		1,		1,		2,		3,		2,		2,		2}, 
+	/* State 2, SVID accepting state with retract*/					  {IS,	    IS,		IS,		IS,		IS,		IS,		IS,		IS},
+	/* State 3  SVID accepting statde without retract*/				  {IS,	    IS,		IS,		IS,		IS,		IS,		IS,		IS}, 
+	/* State 4, non zero didgit state*/								  {ES,	    4,		4,		7,		5,		5,		5,		5},
+	/* State 5, decimal int literal accepting state with retract*/    {IS,	    IS,		IS,		IS,		IS,		IS,		IS,		IS},
+	/* State 6, 0 state*/											  {ES,	    6,		ES,		7,		5,		5,		ES,		5},
+	/* State 7, digit state*/										  {8,	    7,		7,		8,		8,		8,		ES,		8}, 
+	/* State 8, floating point literal accepting state with retract*/ {IS,	    IS,		IS,		IS,		IS,		IS,		IS,		IS}, 
+	/* State 9, string literal state*/								  {9,		9,		9,		9,		9,		9,		10,		ES}, 
+	/* State 10, string literal accept state with retract*/			  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, 
+	/* State 11, error state without retract*/						  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS}, 
+	/* State 12, error state with retract */						  {IS,		IS,		IS,		IS,		IS,		IS,		IS,		IS} 
 };
 
 /* Accepting state table definition */
