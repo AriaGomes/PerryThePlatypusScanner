@@ -70,7 +70,8 @@ int  st_table[][TABLE_COLUMNS] = {
 #define ASNR     3  /* accepting state with no retract */
 #define NOAS     0  /* not accepting state */
 
-int as_table[] = {
+int as_table[] = 
+{
 	/* State 0 */ NOAS,
 	/* State 1 */ NOAS,
 	/* State 2 */ ASWR,
@@ -92,7 +93,7 @@ Token aa_func02(char* lexeme);
 Token aa_func03(char* lexeme);
 Token aa_func05(char* lexeme);
 Token aa_func08(char* lexeme);
-Token aa_func11(char* lexeme);
+Token aa_func10(char* lexeme);
 Token aa_func12(char* lexeme);
 
 /* defining a new type: pointer to function (of one char * argument)
@@ -107,7 +108,8 @@ typedef Token(*PTR_AAF)(char* lexeme);
  * Token (*aa_table[])(char lexeme[]) = {
  */
 
-PTR_AAF aa_table[] = {
+PTR_AAF aa_table[] = 
+{
 	/* State 0 */ NULL,
 	/* State 1 */ NULL,
 	/* State 2 */ aa_func02,
@@ -118,7 +120,7 @@ PTR_AAF aa_table[] = {
 	/* State 7 */ NULL,
 	/* State 8 */ aa_func08,
 	/* State 9 */ NULL,
-	/* State 10 */ aa_func11,
+	/* State 10 */ aa_func10,
 	/* State 11 */ aa_func12,
 	/* State 12 */ aa_func12
 	/* State 13 */ /*NULL*/

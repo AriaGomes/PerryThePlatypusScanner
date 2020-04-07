@@ -52,7 +52,6 @@ static int char_class(char c); /* character class function */
 static int get_next_state(int, char); /* state machine function */
 static int iskeyword(char* kw_lexeme); /*keywords lookup functuion */
 
-
 /*****************************************************
 Function Name:		scanner_init()
 Author:				Aria Gomes & Nicholas King
@@ -121,6 +120,8 @@ Token malar_next_token(void)
 			line++;
 			continue;
 		case '\t':		/* Tab Escape Sequence */
+			continue;
+		case '\f':
 			continue;
 		case ' ':		/* White Space */
 			continue;
@@ -258,12 +259,13 @@ Token malar_next_token(void)
 				continue;
 			}
 			else /* ERROR */
-			{				
+			{	
 				t.code = ERR_T;
 				t.attribute.err_lex[0] = '!';
 				t.attribute.err_lex[1] = c;
 				t.attribute.err_lex[2] = SEOF;
-				while (b_getc(sc_buf) != NL) {}
+				c = b_getc(sc_buf);
+				while (c != NL && SEOF) { c = b_getc(sc_buf); }
 				line++;
 				return t;
 			}
@@ -546,7 +548,7 @@ Token aa_func08(char lexeme[])
 }
 
 /*****************************************************
-Function Name:		aa_func10
+Function Name:		aa_func11
 Purpose:			Returns a String Token
 Author:				Aria Gomes & Nicholas King
 History/Version:	February 25			   v.1.2
@@ -561,7 +563,7 @@ Algorithm:			Setting the attribute of the string offset to the location where
 					end of the lexeme string by using the buffer addc function.
 					Returning the generated token after assigning STR_T to the string token.
 *****************************************************/
-Token aa_func11(char lexeme[])
+Token aa_func10(char lexeme[])
 {
 	Token t;
 	unsigned int i;
